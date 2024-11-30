@@ -56,11 +56,3 @@ This plugin is designed to make dependency management easier for developers usin
 2. Place your cursor inside any line of a `<dependency>` block.
 3. Right-click and select `Open in Maven Repository`.
 4. The corresponding Maven Repository page will open in your browser.
-
-## Examples
-
-### Gradle
-```kotlin
-implementation("org.springframework.boot:spring-boot-starter-security")
-runtimeOnly 'io.github.oshai:kotlin-logging-jvm:7.0.0'
-runtimeOnly group: 'io.github.oshai', name: 'kotlin-logging-jvm', version: '7.0.0'
