@@ -5,9 +5,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.ui.Messages
+import org.w3c.dom.Document
 import java.awt.Desktop
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.net.URI
+import javax.xml.parsers.DocumentBuilderFactory
 
 class OpenDependencyAction : AnAction("Open in Maven Repository") {
 
@@ -33,13 +36,9 @@ class OpenDependencyAction : AnAction("Open in Maven Repository") {
             return
         }
 
-        val selectedLine = getSelectedLineText(editor)
-
-        val variables = resolveVariableValues(project.basePath ?: "")
-
-        val dependency = parseDependency(selectedLine, variables)
+        val dependency = findDependency(editor, project.basePath ?: "")
         if (dependency == null) {
-            showErrorDialog("No valid dependency found on the selected line.")
+            showErrorDialog("No valid dependency found.")
             return
         }
 
@@ -52,31 +51,100 @@ class OpenDependencyAction : AnAction("Open in Maven Repository") {
 
         event.presentation.isEnabledAndVisible = false
 
-        if (editor != null && (virtualFile?.name?.endsWith(".gradle") == true || virtualFile?.name?.endsWith(".gradle.kts") == true)) {
+        if (editor != null && (virtualFile?.name?.endsWith(".gradle") == true ||
+                    virtualFile?.name?.endsWith(".gradle.kts") == true ||
+                    virtualFile?.name?.endsWith(".xml") == true)) {
+            val document = editor.document
+            val caret = editor.caretModel.currentCaret
+            val currentLine = caret.logicalPosition.line
+
             val selectedLine = getSelectedLineText(editor)
+
+            // Gradle DSL 처리
             if (DEPENDENCY_REGEX.containsMatchIn(selectedLine) ||
                 GRADLE_DSL_REGEX.containsMatchIn(selectedLine) ||
-                GRADLE_DSL_NAMED_REGEX.containsMatchIn(selectedLine)
-            ) {
+                GRADLE_DSL_NAMED_REGEX.containsMatchIn(selectedLine)) {
+                event.presentation.isEnabledAndVisible = true
+                return
+            }
+
+            // Maven XML 블록 처리
+            if (isInsideDependencyBlock(document, currentLine)) {
                 event.presentation.isEnabledAndVisible = true
             }
         }
     }
 
-    private fun showErrorDialog(message: String) {
-        Messages.showErrorDialog(message, "Error")
+    private fun isInsideDependencyBlock(document: com.intellij.openapi.editor.Document, currentLine: Int): Boolean {
+        val startLine = findDependencyBlockStart(document, currentLine)
+        val endLine = findDependencyBlockEnd(document, currentLine)
+        return startLine != null && endLine != null && currentLine in startLine..endLine
     }
 
-    private fun getSelectedLineText(editor: Editor): String {
+    private fun findDependency(editor: Editor, projectPath: String): Dependency? {
+        val selectedLine = getSelectedLineText(editor)
+        val variables = resolveVariableValues(projectPath)
+
+        // Gradle 의존성 처리
+        parseDependency(selectedLine, variables)?.let { return it }
+
+        // Maven XML 의존성 처리
+        val dependencyBlock = findXmlDependencyBlock(editor) ?: return null
+        return parsePomDependency(dependencyBlock)
+    }
+
+    private fun findXmlDependencyBlock(editor: Editor): String? {
         val document = editor.document
         val caret = editor.caretModel.currentCaret
-        val lineStart = document.getLineStartOffset(caret.logicalPosition.line)
-        val lineEnd = document.getLineEndOffset(caret.logicalPosition.line)
-        return document.text.substring(lineStart, lineEnd).trim()
+        val currentLine = caret.logicalPosition.line
+
+        val startLine = findDependencyBlockStart(document, currentLine) ?: return null
+        val endLine = findDependencyBlockEnd(document, currentLine) ?: return null
+
+        return (startLine..endLine).joinToString("\n") { line ->
+            document.getText(com.intellij.openapi.util.TextRange(document.getLineStartOffset(line), document.getLineEndOffset(line))).trim()
+        }
+    }
+
+    private fun findDependencyBlockStart(document: com.intellij.openapi.editor.Document, currentLine: Int): Int? {
+        for (line in currentLine downTo 0) {
+            val lineText = document.getText(com.intellij.openapi.util.TextRange(document.getLineStartOffset(line), document.getLineEndOffset(line))).trim()
+            if (lineText.contains("<dependency>")) {
+                return line
+            }
+        }
+        return null
+    }
+
+    private fun findDependencyBlockEnd(document: com.intellij.openapi.editor.Document, currentLine: Int): Int? {
+        for (line in currentLine until document.lineCount) {
+            val lineText = document.getText(com.intellij.openapi.util.TextRange(document.getLineStartOffset(line), document.getLineEndOffset(line))).trim()
+            if (lineText.contains("</dependency>")) {
+                return line
+            }
+        }
+        return null
+    }
+
+    private fun parsePomDependency(block: String): Dependency? {
+        return try {
+            val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            val inputStream = ByteArrayInputStream(block.toByteArray())
+            val document: Document = documentBuilder.parse(inputStream)
+            val groupId = document.getElementsByTagName("groupId").item(0)?.textContent
+            val artifactId = document.getElementsByTagName("artifactId").item(0)?.textContent
+            val version = document.getElementsByTagName("version").item(0)?.textContent
+            if (groupId != null && artifactId != null) {
+                Dependency(groupId, artifactId, version)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun parseDependency(lineText: String, variables: Map<String, String>): Dependency? {
-        // Check standard dependency format
         val matchResult = DEPENDENCY_REGEX.find(lineText)
         if (matchResult != null) {
             val (_, group, artifact, version) = matchResult.destructured
@@ -84,14 +152,12 @@ class OpenDependencyAction : AnAction("Open in Maven Repository") {
             return Dependency(group, artifact, resolvedVersion.ifEmpty { null })
         }
 
-        // Check Gradle DSL short format
         val dslMatch = GRADLE_DSL_REGEX.find(lineText)
         if (dslMatch != null) {
             val (_, group, artifact, version) = dslMatch.destructured
             return Dependency(group, artifact, version)
         }
 
-        // Check Gradle DSL named format
         val namedMatch = GRADLE_DSL_NAMED_REGEX.find(lineText)
         if (namedMatch != null) {
             val (_, group, artifact, version) = namedMatch.destructured
@@ -149,6 +215,18 @@ class OpenDependencyAction : AnAction("Open in Maven Repository") {
         } catch (e: Exception) {
             showErrorDialog("Failed to open browser: ${e.message}")
         }
+    }
+
+    private fun showErrorDialog(message: String) {
+        Messages.showErrorDialog(message, "Error")
+    }
+
+    private fun getSelectedLineText(editor: Editor): String {
+        val document = editor.document
+        val caret = editor.caretModel.currentCaret
+        val lineStart = document.getLineStartOffset(caret.logicalPosition.line)
+        val lineEnd = document.getLineEndOffset(caret.logicalPosition.line)
+        return document.getText(com.intellij.openapi.util.TextRange(lineStart, lineEnd)).trim()
     }
 
     data class Dependency(
