@@ -4,20 +4,19 @@
 [![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
 
+<!-- Plugin description -->
 Dependency Explorer is an IntelliJ IDEA plugin that simplifies the exploration of Gradle dependencies and allows you to quickly navigate to their detailed pages in Maven Repository.
 
-## Key Features
+### Key Features:
+- Supports multiple dependency formats:
+  - Gradle Standard: `implementation("group:artifact:version")`
+  - Gradle DSL Short: `runtimeOnly 'group:artifact:version'`
+  - Gradle DSL Named: `runtimeOnly group: 'group', name: 'artifact', version: 'version'`
+- Automatically generates [Maven Repository](https://mvnrepository.com/) links for dependencies.
+- Resolves variables in dependency declarations.
 
-- **Dependency Parsing**:
-  - Supports multiple dependency formats:
-    - Gradle Standard: `implementation("group:artifact:version")`
-    - Gradle DSL Short: `runtimeOnly 'group:artifact:version'`
-    - Gradle DSL Named: `runtimeOnly group: 'group', name: 'artifact', version: 'version'`
-
-[//]: # (    - Maven POM: `<dependency>` tags )
-- **Dependency Link Generation**:
-  - Automatically generates [Maven Repository](https://mvnrepository.com/) links for dependencies.
-  - Works even if version information is missing by linking to the base artifact page.
+This plugin is designed to make dependency management easier for developers using IntelliJ IDEA.
+<!-- Plugin description end -->
 
 ## Installation
 
