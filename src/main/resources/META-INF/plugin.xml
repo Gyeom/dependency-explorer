@@ -6,13 +6,10 @@
 
     <depends>com.intellij.modules.platform</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
-
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.gyeom.dependencyexplorer.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-    </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.gyeom.dependencyexplorer.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
+    <actions>
+        <action id="OpenDependencyAction" class="com.github.gyeom.dependencyexplorer.OpenDependencyAction"
+                text="Open in Maven Repository">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="QuickDocumentation"/>
+        </action>
+    </actions>
 </idea-plugin>
