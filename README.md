@@ -20,8 +20,6 @@ Dependency Explorer is an IntelliJ IDEA plugin that simplifies the exploration o
         <version>version</version>
     </dependency>
     ```
-- Automatically generates [Maven Repository](https://mvnrepository.com/) links for dependencies in both Gradle and Maven formats.
-- Resolves variables in dependency declarations (e.g., `$version` or `${version}`).
 
 This plugin is designed to make dependency management easier for developers using IntelliJ IDEA.
 <!-- Plugin description end -->

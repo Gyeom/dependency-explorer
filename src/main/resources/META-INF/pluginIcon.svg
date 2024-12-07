@@ -1,0 +1,17 @@
+<svg width="40" height="40" viewBox="0 0 100 100"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+
+    <line x1="65" y1="65" x2="90" y2="90"
+          stroke="#2B90D9" stroke-width="5" stroke-linecap="round"/>
+
+    <circle cx="50" cy="50" r="30" fill="none" stroke="#2B90D9" stroke-width="5"/>
+
+    <text x="50" y="46" fill="#31D08E" font-size="10" font-weight="bold"
+          text-anchor="middle" font-family="Sans-Serif">
+        Gradle
+    </text>
+    <text x="50" y="58" fill="#87CEFA" font-size="10" font-weight="bold"
+          text-anchor="middle" font-family="Sans-Serif">
+        Maven
+    </text>
+</svg>
