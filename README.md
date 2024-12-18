@@ -10,8 +10,8 @@ Dependency Explorer is an IntelliJ IDEA plugin that simplifies the exploration o
 ### Key Features:
 - Supports multiple dependency formats:
   - Gradle Standard: `implementation("group:artifact:version")`
-  - Gradle DSL Short: `runtimeOnly 'group:artifact:version'`
-  - Gradle DSL Named: `runtimeOnly group: 'group', name: 'artifact', version: 'version'`
+  - Gradle DSL Short: `implementation 'group:artifact:version'`
+  - Gradle DSL Named: `implementation group: 'group', name: 'artifact', version: 'version'`
   - Maven XML:
     ```xml
     <dependency>
@@ -28,18 +28,12 @@ This plugin is designed to make dependency management easier for developers usin
 
 ### Using the IDE Built-in Plugin System:
 1. Go to <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd>.
-2. Search for "Dependency Explorer".
+2. Search for "Gradle/Maven Dependency Explorer".
 3. Click <kbd>Install</kbd>.
 
 ### Using JetBrains Marketplace:
-1. Visit [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID).
+1. Visit [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/25968-gradle-maven-dependency-explorer).
 2. Click the <kbd>Install to ...</kbd> button while your IDE is running.
-
-### Manual Installation:
-1. Download the [latest release](https://github.com/Gyeom/dependency-explorer/releases/latest).
-2. In your IDE:
-  - Navigate to <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>.
-  - Select the downloaded file.
 
 ## Usage
 
