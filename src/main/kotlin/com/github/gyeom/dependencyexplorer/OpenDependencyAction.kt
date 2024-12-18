@@ -1,5 +1,6 @@
 package com.github.gyeom.dependencyexplorer
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -25,6 +26,10 @@ class OpenDependencyAction : AnAction("Open in Maven Repository") {
             """([a-zA-Z0-9_]+)\s*group:\s*['"]([a-zA-Z0-9_.-]+)['"],\s*name:\s*['"]([a-zA-Z0-9_.-]+)['"],\s*version:\s*['"]([a-zA-Z0-9_.-]+)['"]"""
         )
         private const val MAVEN_BASE_URL = "https://mvnrepository.com/artifact"
+    }
+
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.BGT
     }
 
     override fun actionPerformed(event: AnActionEvent) {

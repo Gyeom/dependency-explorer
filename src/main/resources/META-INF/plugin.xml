@@ -7,9 +7,12 @@
     <depends>com.intellij.modules.platform</depends>
 
     <actions>
-        <action id="OpenDependencyAction" class="com.github.gyeom.dependencyexplorer.OpenDependencyAction"
-                text="Open in Maven Repository">
-            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="QuickDocumentation"/>
+        <action id="OpenDependencyAction"
+                class="com.github.gyeom.dependencyexplorer.OpenDependencyAction"
+                text="Open in Maven Repository"
+                description="Open selected dependency in Maven Repository">
+
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
         </action>
     </actions>
 </idea-plugin>
