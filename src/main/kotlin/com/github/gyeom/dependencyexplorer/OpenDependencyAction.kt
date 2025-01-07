@@ -17,7 +17,7 @@ class OpenDependencyAction : AnAction("Open in Maven Repository") {
 
     companion object {
         private val DEPENDENCY_REGEX = Regex(
-            """([a-zA-Z0-9_]+)\("([a-zA-Z0-9_.-]+):([a-zA-Z0-9_.-]+)(?::([a-zA-Z0-9_.-]+|\$\{?[a-zA-Z0-9_]+}?)?)?"\)"""
+            """([a-zA-Z0-9_]+)\s*\(\s*["']([a-zA-Z0-9_.-]+):([a-zA-Z0-9_.-]+)(?::([a-zA-Z0-9_.-]+|\$\{?[a-zA-Z0-9_]+}?)?)?["']\s*\)"""
         )
         private val GRADLE_DSL_REGEX = Regex(
             """([a-zA-Z0-9_]+)\s*['"]([a-zA-Z0-9_.-]+):([a-zA-Z0-9_.-]+)(?::([a-zA-Z0-9_.-]+))?['"]"""
