@@ -23,7 +23,7 @@ class OpenDependencyAction : AnAction("Open in Maven Repository") {
             """([a-zA-Z0-9_]+)\s*['"]([a-zA-Z0-9_.-]+):([a-zA-Z0-9_.-]+)(?::([a-zA-Z0-9_.-]+))?['"]"""
         )
         private val GRADLE_DSL_NAMED_REGEX = Regex(
-            """([a-zA-Z0-9_]+)\s*group:\s*['"]([a-zA-Z0-9_.-]+)['"],\s*name:\s*['"]([a-zA-Z0-9_.-]+)['"],\s*version:\s*['"]([a-zA-Z0-9_.-]+)['"]"""
+            """([a-zA-Z0-9_]+)\s*group:\s*['"]([a-zA-Z0-9_.-]+)['"],\s*name:\s*['"]([a-zA-Z0-9_.-]+)['"](,\s*version:\s*['"]([a-zA-Z0-9_.-]+)['"])?"""
         )
         private const val MAVEN_BASE_URL = "https://mvnrepository.com/artifact"
     }
@@ -165,8 +165,8 @@ class OpenDependencyAction : AnAction("Open in Maven Repository") {
 
         val namedMatch = GRADLE_DSL_NAMED_REGEX.find(lineText)
         if (namedMatch != null) {
-            val (_, group, artifact, version) = namedMatch.destructured
-            return Dependency(group, artifact, version)
+            val (_, group, artifact, _, version) = namedMatch.destructured
+            return Dependency(group, artifact, version.ifEmpty { null })
         }
 
         return null
